@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer-array name="colors_array">
+        <item>0x0000FF00</item>
+        <!--<item>Pig</item>
+        <item>Bird</item>
+        <item>Sheep</item>-->
+    </integer-array>
+</resources>
