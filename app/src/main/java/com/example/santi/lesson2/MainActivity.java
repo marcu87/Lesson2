@@ -37,53 +37,50 @@ public class MainActivity extends Activity {
                 Handler handler = new Handler();
                 Runnable runnable = null;
 
-                if (colorIsBlack == 1) {
-                    clickWhenBlack=1;
-                    mChronometer.setVisibility(View.GONE);
-                    myTextView.setVisibility(View.VISIBLE);
+                if(colorIsBlack==1) clickWhenBlack=1;
+                int[] androidColors = getResources().getIntArray(R.array.androidcolors);
+                int randomAndroidColor = androidColors[new Random().nextInt(androidColors.length)];
+                root.setBackgroundColor(randomAndroidColor);
 
-                } else {
-                    int[] androidColors = getResources().getIntArray(R.array.androidcolors);
-                    int randomAndroidColor = androidColors[new Random().nextInt(androidColors.length)];
-                    root.setBackgroundColor(randomAndroidColor);
+                mChronometer.setBase(SystemClock.elapsedRealtime());
+                mChronometer.start();
 
-                    mChronometer.setBase(SystemClock.elapsedRealtime());
-                    mChronometer.start();
+                if (randomAndroidColor == black) {
+                    colorIsBlack = 1;
+                    handler = new Handler();
 
-                    if (randomAndroidColor == black) {
-                        colorIsBlack = 1;
-                        handler = new Handler();
+                    final Handler finalH = handler;
+                    final Runnable finalR = runnable;
+                    runnable = new Runnable() {
+                        //private boolean killMe = false;
 
-                        final Handler finalH = handler;
-                        final Runnable finalR = runnable;
-                        runnable = new Runnable() {
-                            //private boolean killMe = false;
-
-                            public void run() {
-                                if(killMe)
-                                    return;
-                                int[] androidColors = getResources().getIntArray(R.array.androidcolors);
-                                int randomAndroidColor = androidColors[new Random().nextInt(androidColors.length)];
-                                root.setBackgroundColor(randomAndroidColor);
-                                colorIsBlack = 0;
+                        public void run() {
+                            if(killMe)
+                                return;
+                            int[] androidColors = getResources().getIntArray(R.array.androidcolors);
+                            int randomAndroidColor = androidColors[new Random().nextInt(androidColors.length)];
+                            root.setBackgroundColor(randomAndroidColor);
+                            colorIsBlack = 0;
 
 
-                            }
-                            private void killRunnable()
-                            {
-                                if(clickWhenBlack==1)
-                                    killMe = true;
-                            }
+                        }
+                        private void killRunnable()
+                        {
+                            if(clickWhenBlack==1)
+                                killMe = true;
+                            mChronometer.setVisibility(View.GONE);
+                            myTextView.setVisibility(View.VISIBLE);
+                        }
 
 
-                        };
-                        handler.postDelayed(runnable, 3000);
-
-                    }
-
-
+                    };
+                    handler.postDelayed(runnable, 3000);
 
                 }
+
+
+
+
 
             }
 
