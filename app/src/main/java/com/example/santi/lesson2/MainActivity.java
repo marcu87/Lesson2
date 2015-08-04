@@ -15,7 +15,8 @@ import java.util.Random;
 public class MainActivity extends Activity {
 
     private TextView myText = null;
-    int b1,b2,b3;
+    int colorIsBlack,clickWhenBlack;
+    private boolean killMe = false;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -26,19 +27,18 @@ public class MainActivity extends Activity {
         final Chronometer mChronometer = (Chronometer) findViewById(R.id.chronometer);
         //final String[] values = getResources().getStringArray(R.array.colors_array);
         final RelativeLayout root = (RelativeLayout) findViewById(R.id.main_layout);
-        b1=0;
-        b2=0;
-        b3=0;
+        colorIsBlack=0;
+        clickWhenBlack=0;
         final int black = getResources().getColor(R.color.black);
         root.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
-                Handler h = new Handler();
-                Runnable r = null;
+                Handler handler = new Handler();
+                Runnable runnable = null;
 
-                if (b1 == 1) {
-                    b2=1;
+                if (colorIsBlack == 1) {
+                    clickWhenBlack=1;
                     mChronometer.setVisibility(View.GONE);
                     myTextView.setVisibility(View.VISIBLE);
 
@@ -51,13 +51,13 @@ public class MainActivity extends Activity {
                     mChronometer.start();
 
                     if (randomAndroidColor == black) {
-                        b1 = 1;
-                        h = new Handler();
+                        colorIsBlack = 1;
+                        handler = new Handler();
 
-                        final Handler finalH = h;
-                        final Runnable finalR = r;
-                        r = new Runnable() {
-                            private boolean killMe = false;
+                        final Handler finalH = handler;
+                        final Runnable finalR = runnable;
+                        runnable = new Runnable() {
+                            //private boolean killMe = false;
 
                             public void run() {
                                 if(killMe)
@@ -65,19 +65,19 @@ public class MainActivity extends Activity {
                                 int[] androidColors = getResources().getIntArray(R.array.androidcolors);
                                 int randomAndroidColor = androidColors[new Random().nextInt(androidColors.length)];
                                 root.setBackgroundColor(randomAndroidColor);
-                                b1 = 0;
+                                colorIsBlack = 0;
 
 
                             }
                             private void killRunnable()
                             {
-                                if(b2==1)
+                                if(clickWhenBlack==1)
                                     killMe = true;
                             }
 
 
                         };
-                        h.postDelayed(r, 3000);
+                        handler.postDelayed(runnable, 3000);
 
                     }
 
