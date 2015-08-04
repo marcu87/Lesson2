@@ -15,7 +15,7 @@ import java.util.Random;
 public class MainActivity extends Activity {
 
     private TextView myText = null;
-    int b1,b2;
+    int b1,b2,b3;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -28,43 +28,47 @@ public class MainActivity extends Activity {
         final RelativeLayout root = (RelativeLayout) findViewById(R.id.main_layout);
         b1=0;
         b2=0;
+        b3=0;
         final int black = getResources().getColor(R.color.black);
         root.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
+                if(b1==1) b2=1;
                 Handler h = new Handler();
                 Runnable r = null;
-
-                if (b1 == 1) {
-                    b2=1;
-                    mChronometer.setVisibility(View.GONE);
-                    myTextView.setVisibility(View.VISIBLE);
-
-                } else {
+                if(b3==0){
                     int[] androidColors = getResources().getIntArray(R.array.androidcolors);
                     int randomAndroidColor = androidColors[new Random().nextInt(androidColors.length)];
                     root.setBackgroundColor(randomAndroidColor);
 
                     mChronometer.setBase(SystemClock.elapsedRealtime());
                     mChronometer.start();
-
                     if (randomAndroidColor == black) {
                         b1 = 1;
                         h = new Handler();
 
                         final Handler finalH = h;
+                        final Runnable finalR = r;
                         r = new Runnable() {
-
+                            volatile private boolean killMe = false;
                             public void run() {
+                                if(killMe)
+                                   return;
                                 int[] androidColors = getResources().getIntArray(R.array.androidcolors);
                                 int randomAndroidColor = androidColors[new Random().nextInt(androidColors.length)];
                                 root.setBackgroundColor(randomAndroidColor);
                                 b1 = 0;
-                                if(b2==1){
-                                  finalH.removeCallbacksAndMessages(null);
-                                }
+
+
                             }
+                            private void killRunnable()
+                            {
+                                if(b2==1)
+                                    killMe = true;
+                                    b3=1;
+                            }
+
 
                         };
                         h.postDelayed(r, 3000);
@@ -73,8 +77,10 @@ public class MainActivity extends Activity {
 
 
 
+                } else {
+                    mChronometer.setVisibility(View.GONE);
+                    myTextView.setVisibility(View.VISIBLE);
                 }
-
             }
 
         });
