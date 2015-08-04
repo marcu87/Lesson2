@@ -34,16 +34,22 @@ public class MainActivity extends Activity {
 
             @Override
             public void onClick(View v) {
-                if(b1==1) b2=1;
                 Handler h = new Handler();
                 Runnable r = null;
-                if(b3==0){
+
+                if (b1 == 1) {
+                    b2=1;
+                    mChronometer.setVisibility(View.GONE);
+                    myTextView.setVisibility(View.VISIBLE);
+
+                } else {
                     int[] androidColors = getResources().getIntArray(R.array.androidcolors);
                     int randomAndroidColor = androidColors[new Random().nextInt(androidColors.length)];
                     root.setBackgroundColor(randomAndroidColor);
 
                     mChronometer.setBase(SystemClock.elapsedRealtime());
                     mChronometer.start();
+
                     if (randomAndroidColor == black) {
                         b1 = 1;
                         h = new Handler();
@@ -51,10 +57,11 @@ public class MainActivity extends Activity {
                         final Handler finalH = h;
                         final Runnable finalR = r;
                         r = new Runnable() {
-                            volatile private boolean killMe = false;
+                            private boolean killMe = false;
+
                             public void run() {
                                 if(killMe)
-                                   return;
+                                    return;
                                 int[] androidColors = getResources().getIntArray(R.array.androidcolors);
                                 int randomAndroidColor = androidColors[new Random().nextInt(androidColors.length)];
                                 root.setBackgroundColor(randomAndroidColor);
@@ -66,7 +73,6 @@ public class MainActivity extends Activity {
                             {
                                 if(b2==1)
                                     killMe = true;
-                                    b3=1;
                             }
 
 
@@ -77,10 +83,8 @@ public class MainActivity extends Activity {
 
 
 
-                } else {
-                    mChronometer.setVisibility(View.GONE);
-                    myTextView.setVisibility(View.VISIBLE);
                 }
+
             }
 
         });
