@@ -1,21 +1,19 @@
 package com.example.santi.lesson2;
 
-
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.view.Menu;
 import android.view.View;
-import android.widget.Chronometer;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.Random;
 
+
 public class MainActivity extends Activity {
 
-    Chronometer focus;
     private TextView myText = null;
     int b1,b2;
     @Override
@@ -25,8 +23,8 @@ public class MainActivity extends Activity {
 
         final TextView myTextView = (TextView) findViewById(R.id.MyTextView);
         myTextView.setVisibility(View.GONE);
-        focus = (Chronometer) findViewById(R.id.chronometer1);
-        final String[] values = getResources().getStringArray(R.array.colors_array);
+        final Chronometer mChronometer = (Chronometer) findViewById(R.id.chronometer);
+        //final String[] values = getResources().getStringArray(R.array.colors_array);
         final RelativeLayout root = (RelativeLayout) findViewById(R.id.main_layout);
         b1=0;
         b2=0;
@@ -40,7 +38,7 @@ public class MainActivity extends Activity {
 
                 if (b1 == 1) {
                     b2=1;
-                    focus.setVisibility(View.GONE);
+                    mChronometer.setVisibility(View.GONE);
                     myTextView.setVisibility(View.VISIBLE);
 
                 } else {
@@ -48,8 +46,8 @@ public class MainActivity extends Activity {
                     int randomAndroidColor = androidColors[new Random().nextInt(androidColors.length)];
                     root.setBackgroundColor(randomAndroidColor);
 
-                    focus.setBase(SystemClock.elapsedRealtime());
-                    focus.start();
+                    mChronometer.setBase(SystemClock.elapsedRealtime());
+                    mChronometer.start();
 
                     if (randomAndroidColor == black) {
                         b1 = 1;
