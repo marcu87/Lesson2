@@ -14,71 +14,109 @@ import java.util.Random;
 
 public class MainActivity extends Activity {
 
-    public TextView myCounter = null;
+    private Handler mainHandler;
+    private int     randomAndroidColor;
+    private int     black;
     int colorIsBlack, clickWhenBlack;
-    private boolean killMe = false;
-    private int lastBackgroundColor = 0;
-    private int randomAndroidColor;
-    public int clickCounter = 0;
+    private Chronometer mChronometer;
+    private TextView    myTextView;
+    public  TextView myCounter                        = null;
+    private boolean  gameEnd = false;
+    private boolean  periodicallyChangeManualActivate = true;
+    private int      lastBackgroundColor              = 0;
+    public  int      clickCounter                     = 0;
+    private int      changeInterval                   = 500;
+    private int      intervalNormalColor              = 500;
+    private int      intervalBlackColor               = 1000;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        mainHandler = new Handler();
+        black = getResources().getColor(R.color.black);
+
         myCounter = (TextView) findViewById(R.id.MyCounter);
-        final TextView myTextView = (TextView) findViewById(R.id.MyTextView);
+        myTextView = (TextView) findViewById(R.id.MyTextView);
         myTextView.setVisibility(View.GONE);
-        final Chronometer mChronometer = (Chronometer) findViewById(R.id.chronometer);
-        //final String[] values = getResources().getStringArray(R.array.colors_array);
+        mChronometer = (Chronometer) findViewById(R.id.chronometer);
+        mChronometer.setVisibility(View.GONE);
+
         final RelativeLayout root = (RelativeLayout) findViewById(R.id.main_layout);
         colorIsBlack = 0;
         clickWhenBlack = 0;
-        final int black = getResources().getColor(R.color.black);
+
+
         root.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
-                Handler handler = new Handler();
-                Runnable runnable = null;
 
-                if (colorIsBlack == 1) {
-                    clickWhenBlack = 1;
-                    mChronometer.setVisibility(View.GONE);
-                    myTextView.setVisibility(View.VISIBLE);
+                stopPeriodicallyChange();
 
-                } else {
-                    changeColor();
-
-                    clickCounter = clickCounter + 1;
-                    myCounter.setText(String.valueOf(clickCounter));
-
-                    mChronometer.setBase(SystemClock.elapsedRealtime());
-                    mChronometer.start();
-
-                    if (randomAndroidColor == black) {
-                        colorIsBlack = 1;
-                        handler = new Handler();
-
-                        runnable = new Runnable() {
-                            public void run() {
-                                if (clickWhenBlack == 1) {
-                                    return;
-                                }
-
-                                changeColor();
-                                colorIsBlack = 0;
-
-                                mChronometer.setBase(SystemClock.elapsedRealtime());
-                                mChronometer.start();
-                            }
-                        };
-                        handler.postDelayed(runnable, 500);
-                    }
+                if (gameEnd == true) {
+                    restartGame();
+                } else if (lastBackgroundColor == black){
+                    showGameOver();
+                    return;
                 }
+
+                changeColor();
+                sumCounterUp();
+
+                startPeriodicallyChange();
             }
 
         });
+    }
+
+    Runnable periodicallyChangeColor = new Runnable() {
+        @Override
+        public void run() {
+
+            if (periodicallyChangeManualActivate == false) {
+                if (lastBackgroundColor != black) {
+                    sumCounterDown();
+                }
+
+                changeColor();
+            }
+            periodicallyChangeManualActivate = false;
+
+            mainHandler.postDelayed(periodicallyChangeColor, changeInterval);
+        }
+    };
+
+    void startPeriodicallyChange() {
+        periodicallyChangeManualActivate = true;
+        periodicallyChangeColor.run();
+    }
+
+    void stopPeriodicallyChange() {
+        mainHandler.removeCallbacks(periodicallyChangeColor);
+    }
+
+    void showGameOver() {
+        myTextView.setVisibility(View.VISIBLE);
+        gameEnd = true;
+    }
+
+    void restartGame() {
+        clickCounter = -1;
+        myCounter.setText(String.valueOf(clickCounter));
+        myTextView.setVisibility(View.GONE);
+        gameEnd = false;
+    }
+
+    void sumCounterUp() {
+        clickCounter = clickCounter + 1;
+        myCounter.setText(String.valueOf(clickCounter));
+    }
+
+    void sumCounterDown() {
+        clickCounter = clickCounter - 1;
+        myCounter.setText(String.valueOf(clickCounter));
     }
 
     public boolean changeColor() {
