@@ -14,21 +14,26 @@ import java.util.Random;
 
 public class MainActivity extends Activity {
 
-    private TextView myText = null;
-    int colorIsBlack,clickWhenBlack;
+    public TextView myCounter = null;
+    int colorIsBlack, clickWhenBlack;
     private boolean killMe = false;
+    private int lastBackgroundColor = 0;
+    private int randomAndroidColor;
+    public int clickCounter = 0;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        myCounter = (TextView) findViewById(R.id.MyCounter);
         final TextView myTextView = (TextView) findViewById(R.id.MyTextView);
         myTextView.setVisibility(View.GONE);
         final Chronometer mChronometer = (Chronometer) findViewById(R.id.chronometer);
         //final String[] values = getResources().getStringArray(R.array.colors_array);
         final RelativeLayout root = (RelativeLayout) findViewById(R.id.main_layout);
-        colorIsBlack=0;
-        clickWhenBlack=0;
+        colorIsBlack = 0;
+        clickWhenBlack = 0;
         final int black = getResources().getColor(R.color.black);
         root.setOnClickListener(new View.OnClickListener() {
 
@@ -38,15 +43,15 @@ public class MainActivity extends Activity {
                 Runnable runnable = null;
 
                 if (colorIsBlack == 1) {
-                    clickWhenBlack=1;
+                    clickWhenBlack = 1;
                     mChronometer.setVisibility(View.GONE);
                     myTextView.setVisibility(View.VISIBLE);
 
                 } else {
+                    changeColor();
 
-                    int[] androidColors = getResources().getIntArray(R.array.androidcolors);
-                    int randomAndroidColor = androidColors[new Random().nextInt(androidColors.length)];
-                    root.setBackgroundColor(randomAndroidColor);
+                    clickCounter = clickCounter + 1;
+                    myCounter.setText(String.valueOf(clickCounter));
 
                     mChronometer.setBase(SystemClock.elapsedRealtime());
                     mChronometer.start();
@@ -55,35 +60,39 @@ public class MainActivity extends Activity {
                         colorIsBlack = 1;
                         handler = new Handler();
 
-                        final Handler finalH = handler;
-                        final Runnable finalR = runnable;
                         runnable = new Runnable() {
-                            //private boolean killMe = false;
-
                             public void run() {
-                                if(clickWhenBlack==1)
+                                if (clickWhenBlack == 1) {
                                     return;
-                                int[] androidColors = getResources().getIntArray(R.array.androidcolors);
-                                int randomAndroidColor = androidColors[new Random().nextInt(androidColors.length)];
-                                root.setBackgroundColor(randomAndroidColor);
+                                }
+
+                                changeColor();
                                 colorIsBlack = 0;
 
-
+                                mChronometer.setBase(SystemClock.elapsedRealtime());
+                                mChronometer.start();
                             }
                         };
-                        handler.postDelayed(runnable, 3000);
-
+                        handler.postDelayed(runnable, 500);
                     }
-
-
-
                 }
-
             }
 
         });
     }
 
+    public boolean changeColor() {
+        final RelativeLayout root = (RelativeLayout) findViewById(R.id.main_layout);
+
+        int[] androidColors = getResources().getIntArray(R.array.androidcolors);
+        while (randomAndroidColor == lastBackgroundColor) {
+            randomAndroidColor = androidColors[new Random().nextInt(androidColors.length)];
+        }
+        root.setBackgroundColor(randomAndroidColor);
+        lastBackgroundColor = randomAndroidColor;
+
+        return true;
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
