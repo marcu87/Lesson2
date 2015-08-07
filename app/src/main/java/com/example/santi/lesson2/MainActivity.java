@@ -2,6 +2,7 @@ package com.example.santi.lesson2;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.view.Menu;
@@ -14,12 +15,14 @@ import java.util.Random;
 
 public class MainActivity extends Activity {
 
-    private Handler mainHandler;
-    private int     randomAndroidColor;
-    private int     black;
     int colorIsBlack, clickWhenBlack;
-    private Chronometer mChronometer;
-    private TextView    myTextView;
+    private Handler        mainHandler;
+    private int            randomAndroidColor;
+    private int            black;
+    private CountDownTimer countDownTimerObj;
+    private Chronometer    mChronometer;
+    private TextView       myTextView;
+    private TextView       countDownTimer;
     public  TextView myCounter                        = null;
     private boolean  gameEnd                          = false;
     private boolean  periodicallyChangeManualActivate = true;
@@ -39,6 +42,7 @@ public class MainActivity extends Activity {
 
         myCounter = (TextView) findViewById(R.id.MyCounter);
         myTextView = (TextView) findViewById(R.id.MyTextView);
+        countDownTimer = (TextView) findViewById(R.id.CountDownTimer);
         myTextView.setVisibility(View.GONE);
         mChronometer = (Chronometer) findViewById(R.id.chronometer);
         mChronometer.setVisibility(View.GONE);
@@ -47,6 +51,14 @@ public class MainActivity extends Activity {
         colorIsBlack = 0;
         clickWhenBlack = 0;
 
+        myTextView.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                restartGame();
+                countDownTimer.setText("");
+            }
+        });
 
         root.setOnClickListener(new View.OnClickListener() {
 
@@ -54,11 +66,15 @@ public class MainActivity extends Activity {
             public void onClick(View v) {
 
                 if (gameEnd == true) {
-                    restartGame();
                     return;
                 } else if (lastBackgroundColor == black) {
                     showGameOver();
+                    countDownTimerObj.cancel();
                     return;
+                }
+
+                if (clickCounter == 0) {
+                    startCountDown();
                 }
 
                 changeColor(false);
@@ -70,6 +86,20 @@ public class MainActivity extends Activity {
             }
 
         });
+    }
+
+    void startCountDown() {
+        countDownTimerObj = new CountDownTimer(5000, 500) {
+
+            public void onTick(long millisUntilFinished) {
+                countDownTimer.setText("countdown: " + millisUntilFinished / 1000);
+            }
+
+            public void onFinish() {
+                countDownTimer.setText("time up!");
+                showGameOver();
+            }
+        }.start();
     }
 
     Runnable periodicallyChangeColor = new Runnable() {
@@ -130,7 +160,7 @@ public class MainActivity extends Activity {
         while (randomAndroidColor == lastBackgroundColor) {
             randomAndroidColor = androidColors[new Random().nextInt(androidColors.length)];
 
-            if (disableBlack == true && randomAndroidColor == black){
+            if (disableBlack == true && randomAndroidColor == black) {
                 randomAndroidColor = lastBackgroundColor;
             }
         }
