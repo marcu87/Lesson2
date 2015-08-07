@@ -1,10 +1,12 @@
 package com.example.santi.lesson2;
 
-import android.app.ActionBar;
 import android.app.Activity;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.View;
 import android.view.Window;
@@ -13,6 +15,9 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.Random;
+
+import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
+import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 
 public class MainActivity extends Activity {
@@ -25,6 +30,7 @@ public class MainActivity extends Activity {
     private TextView       replay;
     private TextView       gameOverLabel;
     private TextView       countDownTimer;
+    private TextView       highScoreView;
     public  TextView myCounter                        = null;
     private boolean  gameEnd                          = false;
     private boolean  periodicallyChangeManualActivate = true;
@@ -37,7 +43,7 @@ public class MainActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        TypefaceUtil.overrideFont(getApplicationContext(), "SERIF", "fonts/Munro.ttf");
+
         // remove title
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
@@ -50,6 +56,7 @@ public class MainActivity extends Activity {
         myCounter = (TextView) findViewById(R.id.MyCounter);
         gameOverLabel = (TextView) findViewById(R.id.GameOver);
         countDownTimer = (TextView) findViewById(R.id.CountDownTimer);
+        highScoreView = (TextView) findViewById(R.id.HighScore);
         replay = (TextView) findViewById(R.id.Replay);
         gameOverLabel.setVisibility(View.GONE);
         replay.setVisibility(View.GONE);
@@ -57,6 +64,9 @@ public class MainActivity extends Activity {
         final RelativeLayout root = (RelativeLayout) findViewById(R.id.main_layout);
         colorIsBlack = 0;
         clickWhenBlack = 0;
+
+        // set the highscore
+        highScoreView.setText("" + getHighScore());
 
         replay.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -154,6 +164,8 @@ public class MainActivity extends Activity {
     void sumCounterUp() {
         clickCounter = clickCounter + 1;
         myCounter.setText(String.valueOf(clickCounter));
+
+        saveHighScore(clickCounter);
     }
 
     void sumCounterDown() {
@@ -180,5 +192,32 @@ public class MainActivity extends Activity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
+    }
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
+    }
+
+    void saveHighScore(int highScore) {
+        if (highScore <= getHighScore()) {
+            return;
+        }
+
+        SharedPreferences        preferences  = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor sharedEditor = preferences.edit();
+
+        sharedEditor.putInt("high_score", highScore);
+        sharedEditor.commit();
+
+        // set the highscore
+        highScoreView.setText("" + getHighScore());
+    }
+
+    public int getHighScore() {
+        SharedPreferences        preferences  = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor sharedEditor = preferences.edit();
+
+        return preferences.getInt("high_score", 0);
     }
 }
