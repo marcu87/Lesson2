@@ -1,12 +1,14 @@
 package com.example.santi.lesson2;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
-import android.os.SystemClock;
 import android.view.Menu;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -20,8 +22,8 @@ public class MainActivity extends Activity {
     private int            randomAndroidColor;
     private int            black;
     private CountDownTimer countDownTimerObj;
-    private Chronometer    mChronometer;
-    private TextView       myTextView;
+    private TextView       replay;
+    private TextView       gameOverLabel;
     private TextView       countDownTimer;
     public  TextView myCounter                        = null;
     private boolean  gameEnd                          = false;
@@ -35,28 +37,32 @@ public class MainActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        TypefaceUtil.overrideFont(getApplicationContext(), "SERIF", "fonts/Munro.ttf");
+        // remove title
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_main);
 
         mainHandler = new Handler();
         black = getResources().getColor(R.color.black);
 
         myCounter = (TextView) findViewById(R.id.MyCounter);
-        myTextView = (TextView) findViewById(R.id.MyTextView);
+        gameOverLabel = (TextView) findViewById(R.id.GameOver);
         countDownTimer = (TextView) findViewById(R.id.CountDownTimer);
-        myTextView.setVisibility(View.GONE);
-        mChronometer = (Chronometer) findViewById(R.id.chronometer);
-        mChronometer.setVisibility(View.GONE);
+        replay = (TextView) findViewById(R.id.Replay);
+        gameOverLabel.setVisibility(View.GONE);
+        replay.setVisibility(View.GONE);
 
         final RelativeLayout root = (RelativeLayout) findViewById(R.id.main_layout);
         colorIsBlack = 0;
         clickWhenBlack = 0;
 
-        myTextView.setOnClickListener(new View.OnClickListener() {
-
+        replay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 restartGame();
-                countDownTimer.setText("");
+                countDownTimer.setText("5");
             }
         });
 
@@ -89,14 +95,14 @@ public class MainActivity extends Activity {
     }
 
     void startCountDown() {
-        countDownTimerObj = new CountDownTimer(5000, 500) {
+        countDownTimerObj = new CountDownTimer(5000, 300) {
 
             public void onTick(long millisUntilFinished) {
-                countDownTimer.setText("countdown: " + millisUntilFinished / 1000);
+                countDownTimer.setText("" + millisUntilFinished / 1000);
             }
 
             public void onFinish() {
-                countDownTimer.setText("time up!");
+                // countDownTimer.setText("time up!");
                 showGameOver();
             }
         }.start();
@@ -130,7 +136,8 @@ public class MainActivity extends Activity {
     }
 
     void showGameOver() {
-        myTextView.setVisibility(View.VISIBLE);
+        gameOverLabel.setVisibility(View.VISIBLE);
+        replay.setVisibility(View.VISIBLE);
         gameEnd = true;
     }
 
@@ -138,7 +145,8 @@ public class MainActivity extends Activity {
         stopPeriodicallyChange();
         clickCounter = 0;
         myCounter.setText(String.valueOf(clickCounter));
-        myTextView.setVisibility(View.GONE);
+        gameOverLabel.setVisibility(View.GONE);
+        replay.setVisibility(View.GONE);
         gameEnd = false;
         changeColor(true);
     }
