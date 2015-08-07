@@ -2,7 +2,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/main_layout">
+    android:id="@+id/main_layout"
+    android:background="@color/blue">
 
     <com.example.santi.lesson2.Chronometer
         android:id="@+id/chronometer"
@@ -17,8 +18,8 @@
 
     <TextView
         android:id="@+id/MyTextView"
-        android:textColor="#4169E1"
-        android:textSize="50dp"
+        android:textColor="#FFF"
+        android:textSize="60dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
@@ -28,8 +29,8 @@
 
     <TextView
         android:id="@+id/MyCounter"
-        android:textColor="#4169E1"
-        android:textSize="50dp"
+        android:textColor="#FFF"
+        android:textSize="100dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"

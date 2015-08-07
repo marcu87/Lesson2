@@ -21,7 +21,7 @@ public class MainActivity extends Activity {
     private Chronometer mChronometer;
     private TextView    myTextView;
     public  TextView myCounter                        = null;
-    private boolean  gameEnd = false;
+    private boolean  gameEnd                          = false;
     private boolean  periodicallyChangeManualActivate = true;
     private int      lastBackgroundColor              = 0;
     public  int      clickCounter                     = 0;
@@ -53,19 +53,20 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View v) {
 
-                stopPeriodicallyChange();
-
                 if (gameEnd == true) {
                     restartGame();
-                } else if (lastBackgroundColor == black){
+                    return;
+                } else if (lastBackgroundColor == black) {
                     showGameOver();
                     return;
                 }
 
-                changeColor();
+                changeColor(false);
                 sumCounterUp();
 
-                startPeriodicallyChange();
+                if (randomAndroidColor == black) {
+                    startPeriodicallyChange();
+                }
             }
 
         });
@@ -75,12 +76,13 @@ public class MainActivity extends Activity {
         @Override
         public void run() {
 
-            if (periodicallyChangeManualActivate == false) {
-                if (lastBackgroundColor != black) {
-                    sumCounterDown();
-                }
+            if (gameEnd == true) {
+                return;
+            }
 
-                changeColor();
+            if (periodicallyChangeManualActivate == false) {
+                changeColor(false);
+                return;
             }
             periodicallyChangeManualActivate = false;
 
@@ -103,10 +105,12 @@ public class MainActivity extends Activity {
     }
 
     void restartGame() {
-        clickCounter = -1;
+        stopPeriodicallyChange();
+        clickCounter = 0;
         myCounter.setText(String.valueOf(clickCounter));
         myTextView.setVisibility(View.GONE);
         gameEnd = false;
+        changeColor(true);
     }
 
     void sumCounterUp() {
@@ -119,17 +123,19 @@ public class MainActivity extends Activity {
         myCounter.setText(String.valueOf(clickCounter));
     }
 
-    public boolean changeColor() {
+    void changeColor(boolean disableBlack) {
         final RelativeLayout root = (RelativeLayout) findViewById(R.id.main_layout);
 
         int[] androidColors = getResources().getIntArray(R.array.androidcolors);
         while (randomAndroidColor == lastBackgroundColor) {
             randomAndroidColor = androidColors[new Random().nextInt(androidColors.length)];
+
+            if (disableBlack == true && randomAndroidColor == black){
+                randomAndroidColor = lastBackgroundColor;
+            }
         }
         root.setBackgroundColor(randomAndroidColor);
         lastBackgroundColor = randomAndroidColor;
-
-        return true;
     }
 
     @Override
