@@ -37,8 +37,6 @@ public class MainActivity extends Activity {
     private int      lastBackgroundColor              = 0;
     public  int      clickCounter                     = 0;
     private int      changeInterval                   = 500;
-    private int      intervalNormalColor              = 500;
-    private int      intervalBlackColor               = 1000;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -72,7 +70,7 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View v) {
                 restartGame();
-                countDownTimer.setText("5");
+                countDownTimer.setText("10");
             }
         });
 
@@ -105,7 +103,7 @@ public class MainActivity extends Activity {
     }
 
     void startCountDown() {
-        countDownTimerObj = new CountDownTimer(5000, 300) {
+        countDownTimerObj = new CountDownTimer(10000, 300) {
 
             public void onTick(long millisUntilFinished) {
                 countDownTimer.setText("" + millisUntilFinished / 1000);
