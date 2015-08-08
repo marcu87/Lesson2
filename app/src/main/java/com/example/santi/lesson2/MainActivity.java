@@ -218,4 +218,19 @@ public class MainActivity extends Activity {
 
         return preferences.getInt("high_score", 0);
     }
+
+    Runnable periodicallyClock = new Runnable() {
+        @Override
+        public void run() {
+            mainHandler.postDelayed(periodicallyClock, changeInterval);
+        }
+    };
+
+    void startPeriodicallyClock() {
+        periodicallyClock.run();
+    }
+
+    void stopPeriodicallyClock() {
+        mainHandler.removeCallbacks(periodicallyClock);
+    }
 }
