@@ -11,6 +11,7 @@ import android.view.Menu;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -22,21 +23,20 @@ import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 public class MainActivity extends Activity {
 
-    int colorIsBlack, clickWhenBlack;
+    private int randomAndroidColor, black;
+    private long currentCountDownTime;
     private Handler        mainHandler;
-    private int            randomAndroidColor;
-    private int            black;
     private CountDownTimer countDownTimerObj;
-    private TextView       replay;
-    private TextView       gameOverLabel;
-    private TextView       countDownTimer;
-    private TextView       highScoreView;
-    public  TextView myCounter                        = null;
-    private boolean  gameEnd                          = false;
-    private boolean  periodicallyChangeManualActivate = true;
-    private int      lastBackgroundColor              = 0;
-    public  int      clickCounter                     = 0;
-    private int      changeInterval                   = 500;
+    private TextView       replay, gameOverLabel, countDownTimer, highScoreView, myCounter;
+    private ImageView clock;
+
+    private boolean gameEnd                          = false;
+    private boolean clockIsVisible                   = false;
+    private boolean periodicallyChangeManualActivate = true;
+    private int     lastBackgroundColor              = 0;
+    public  int     clickCounter                     = 0;
+    private int     changeInterval                   = 500;
+    private int     countDownInitialTime             = 10000;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -56,12 +56,11 @@ public class MainActivity extends Activity {
         countDownTimer = (TextView) findViewById(R.id.CountDownTimer);
         highScoreView = (TextView) findViewById(R.id.HighScore);
         replay = (TextView) findViewById(R.id.Replay);
+        clock = (ImageView) findViewById(R.id.Clock);
         gameOverLabel.setVisibility(View.GONE);
         replay.setVisibility(View.GONE);
 
         final RelativeLayout root = (RelativeLayout) findViewById(R.id.main_layout);
-        colorIsBlack = 0;
-        clickWhenBlack = 0;
 
         // set the highscore
         highScoreView.setText("" + getHighScore());
@@ -71,6 +70,15 @@ public class MainActivity extends Activity {
             public void onClick(View v) {
                 restartGame();
                 countDownTimer.setText("10");
+            }
+        });
+
+        clock.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                addTimeToCountDown(5000);
+                hideClock();
+                changeColorAndSumeUp();
             }
         });
 
@@ -88,25 +96,41 @@ public class MainActivity extends Activity {
                 }
 
                 if (clickCounter == 0) {
-                    startCountDown();
+                    startCountDown(countDownInitialTime);
+                } else {
+                    showClockOrNot();
                 }
 
-                changeColor(false);
-                sumCounterUp();
-
-                if (randomAndroidColor == black) {
-                    startPeriodicallyChange();
-                }
+                changeColorAndSumeUp();
             }
 
         });
     }
 
-    void startCountDown() {
-        countDownTimerObj = new CountDownTimer(10000, 300) {
+    void changeColorAndSumeUp() {
+        sumCounterUp();
+        changeColor((clickCounter == 1));
+
+        if (randomAndroidColor == black) {
+            startPeriodicallyChange();
+            hideClock();
+        }
+    }
+
+    void addTimeToCountDown(long time) {
+        countDownTimerObj.cancel();
+
+        long countDownInitialTime = time + currentCountDownTime;
+
+        startCountDown(countDownInitialTime);
+    }
+
+    void startCountDown(long time) {
+        countDownTimerObj = new CountDownTimer(time, 500) {
 
             public void onTick(long millisUntilFinished) {
                 countDownTimer.setText("" + millisUntilFinished / 1000);
+                currentCountDownTime = millisUntilFinished ;
             }
 
             public void onFinish() {
@@ -147,6 +171,7 @@ public class MainActivity extends Activity {
         gameOverLabel.setVisibility(View.VISIBLE);
         replay.setVisibility(View.VISIBLE);
         gameEnd = true;
+        hideClock();
     }
 
     void restartGame() {
@@ -164,11 +189,6 @@ public class MainActivity extends Activity {
         myCounter.setText(String.valueOf(clickCounter));
 
         saveHighScore(clickCounter);
-    }
-
-    void sumCounterDown() {
-        clickCounter = clickCounter - 1;
-        myCounter.setText(String.valueOf(clickCounter));
     }
 
     void changeColor(boolean disableBlack) {
@@ -192,6 +212,9 @@ public class MainActivity extends Activity {
         return true;
     }
 
+    /*
+    * this function is necessary for the calligraphy plugin
+    */
     @Override
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
@@ -222,15 +245,39 @@ public class MainActivity extends Activity {
     Runnable periodicallyClock = new Runnable() {
         @Override
         public void run() {
+            if (clockIsVisible) {
+                clock.setVisibility(View.GONE);
+                clockIsVisible = false;
+            } else {
+                clock.setVisibility(View.VISIBLE);
+                clockIsVisible = true;
+            }
+
+            Random r              = new Random();
+            int    changeInterval = r.nextInt(3000) + 1000;
+
             mainHandler.postDelayed(periodicallyClock, changeInterval);
         }
     };
 
-    void startPeriodicallyClock() {
-        periodicallyClock.run();
+    void showClockOrNot() {
+        Random r            = new Random();
+        int    randomNumber = r.nextInt(5);
+
+        if (randomNumber == 1) {
+            showClock();
+        } else {
+            hideClock();
+        }
     }
 
-    void stopPeriodicallyClock() {
-        mainHandler.removeCallbacks(periodicallyClock);
+    void showClock() {
+        clockIsVisible = true;
+        clock.setVisibility(View.VISIBLE);
+    }
+
+    void hideClock() {
+        clockIsVisible = false;
+        clock.setVisibility(View.GONE);
     }
 }
