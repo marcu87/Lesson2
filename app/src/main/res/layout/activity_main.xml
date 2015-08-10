@@ -65,7 +65,7 @@
         android:layout_marginTop="41dp"
         android:layout_marginRight="45dp"
         android:layout_alignParentRight="true"
-        android:text="10"
+        android:text="-"
         fontPath="fonts/Munro.ttf"
         />
 
@@ -99,11 +99,15 @@
         android:id="@+id/Clock"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
-        android:src="@drawable/stopwatch"
+        android:src="@drawable/space31"
         android:visibility="invisible"
-        android:layout_centerHorizontal="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="80dp"
+        android:layout_marginBottom="140dp"
+        android:layout_marginTop="140dp"
+        android:layout_marginLeft="150dp"
         />
+
+    <!--xdpi = 315.31-->
+    <!--ydpi = 315.65-->
 
 </RelativeLayout>

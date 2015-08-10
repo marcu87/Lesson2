@@ -3,12 +3,19 @@ package com.example.santi.lesson2;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
+import android.graphics.Point;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.util.DisplayMetrics;
+import android.util.Log;
+import android.util.TypedValue;
+import android.view.Display;
 import android.view.Menu;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
@@ -23,8 +30,10 @@ import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 public class MainActivity extends Activity {
 
-    private int randomAndroidColor, black;
-    private long currentCountDownTime;
+    private static final String TAG = "MainActivity";
+
+    private int randomAndroidColor, black, screenHeightPixels, screenWidthPixels;
+    private long           currentCountDownTime;
     private Handler        mainHandler;
     private CountDownTimer countDownTimerObj;
     private TextView       replay, gameOverLabel, countDownTimer, highScoreView, myCounter;
@@ -36,7 +45,7 @@ public class MainActivity extends Activity {
     private int     lastBackgroundColor              = 0;
     public  int     clickCounter                     = 0;
     private int     changeInterval                   = 500;
-    private int     countDownInitialTime             = 10000;
+    private int     countDownInitialTime             = 5000;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -44,9 +53,10 @@ public class MainActivity extends Activity {
 
         // remove title
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_main);
+
+        calculateScreenSize();
 
         mainHandler = new Handler();
         black = getResources().getColor(R.color.black);
@@ -69,14 +79,14 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View v) {
                 restartGame();
-                countDownTimer.setText("10");
+                countDownTimer.setText(""+ (countDownInitialTime/1000));
             }
         });
 
         clock.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                addTimeToCountDown(5000);
+                addTimeToCountDown(2000);
                 hideClock();
                 changeColorAndSumeUp();
             }
@@ -130,7 +140,7 @@ public class MainActivity extends Activity {
 
             public void onTick(long millisUntilFinished) {
                 countDownTimer.setText("" + millisUntilFinished / 1000);
-                currentCountDownTime = millisUntilFinished ;
+                currentCountDownTime = millisUntilFinished;
             }
 
             public void onFinish() {
@@ -272,6 +282,26 @@ public class MainActivity extends Activity {
     }
 
     void showClock() {
+        int imageWidth = clock.getWidth();
+        int maxWidth   = screenWidthPixels - (imageWidth * 2);
+
+        Random r            = new Random();
+        int    randomMargin = r.nextInt(maxWidth - imageWidth) + imageWidth;
+
+        ViewGroup.MarginLayoutParams marginParams = (ViewGroup.MarginLayoutParams) clock.getLayoutParams();
+        marginParams.setMargins(randomMargin, marginParams.topMargin, marginParams.rightMargin, marginParams.bottomMargin);
+        clock.setLayoutParams(marginParams);
+
+        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) clock.getLayoutParams();
+        if ((Math.random() < 0.5)) {
+            params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+            params.removeRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+        } else {
+            params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+            params.removeRule(RelativeLayout.ALIGN_PARENT_TOP);
+        }
+        clock.setLayoutParams(params); //causes layout update
+
         clockIsVisible = true;
         clock.setVisibility(View.VISIBLE);
     }
@@ -279,5 +309,29 @@ public class MainActivity extends Activity {
     void hideClock() {
         clockIsVisible = false;
         clock.setVisibility(View.GONE);
+    }
+
+    void calculateScreenSize() {
+        // pixels, dpi
+        DisplayMetrics metrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(metrics);
+
+        screenHeightPixels = metrics.heightPixels;
+        screenWidthPixels = metrics.widthPixels;
+
+        Log.i(TAG, "" + screenHeightPixels);
+        Log.i(TAG, "" + screenWidthPixels);
+    }
+
+    public static float convertDpToPixel(float dp, Context context) {
+        float density = context.getResources().getDisplayMetrics().density;
+        float px      = dp * density;
+        return px;
+    }
+
+    public static float convertPixelsToDp(float px, Context context) {
+        float density = context.getResources().getDisplayMetrics().density;
+        float dp      = px / density;
+        return dp;
     }
 }
